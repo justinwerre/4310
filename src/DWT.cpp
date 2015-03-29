@@ -12,7 +12,7 @@
 #include "../headers/DWT.h"
 using namespace cv;
 
-// performs a 2-d wavelet transform on the image
+// performs a 2-d haar wavelet transform on the image
 void DWT(Wavelet &wavelets)
 {
 	Wavelet temp( wavelets.size(), std::vector<double>( wavelets.at( 0 ).size(), 0 ) );
@@ -42,6 +42,7 @@ void DWT(Wavelet &wavelets)
 		{
 			double current_pixel = temp.at( x ).at( y * 2 );
 			double next_pixel = temp.at( x ).at( y * 2 + 1 );
+
 			temp1.at( x ).at( y ) = weight_factor * current_pixel + weight_factor * next_pixel;
 			temp1.at( x ).at( y + half_width ) = -weight_factor * next_pixel + weight_factor * current_pixel;
 		}
@@ -53,7 +54,17 @@ void DWT(Wavelet &wavelets)
 	{
 		for( int y = 0; y < wavelet_image.cols; y++)
 		{
-			wavelet_image.data[wavelet_image.step * x + y] = static_cast<uchar>( temp1.at( x ).at( y ) );
+			double t = temp1.at( x ).at( y );
+
+			if( t < 0 )
+			{
+				t = 0;
+			}else if( t > 255 )
+			{
+				t = 255;
+			}
+
+			wavelet_image.data[wavelet_image.step * x + y] = static_cast<uchar>( t );
 		}
 	}
 
