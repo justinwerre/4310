@@ -12,6 +12,6 @@
 
 typedef std::vector<std::vector<double> > Wavelet;
 
-void DWT(Wavelet &image);
+void DWT(Wavelet &wavelets, int height, int width, int depth = 0);
 
 #endif /* HEADERS_DWT_H_ */

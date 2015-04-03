@@ -13,19 +13,18 @@
 using namespace cv;
 
 // performs a 2-d haar wavelet transform on the image
-void DWT(Wavelet &wavelets)
+void DWT(Wavelet &wavelets, int height, int width, int depth)
 {
-	Wavelet temp( wavelets.size(), std::vector<double>( wavelets.at( 0 ).size(), 0 ) );
-	Wavelet temp1( wavelets.size(), std::vector<double>( wavelets.at( 0 ).size(), 0 ) );
-
+	Wavelet temp( height, std::vector<double>( width, 0 ) );
+	Wavelet temp1( height, std::vector<double>( width, 0 ) );
 	double weight_factor = sqrt(2)/2;
-	int half_height = wavelets.size() / 2;
-	int half_width = wavelets.at( 0 ).size() /2;
+	int half_height = height / 2;
+	int half_width = width /2;
 
 	// perform wavelet transform on rows
-	for( int x = 0; x < half_height - 1; x += 2 )
+	for( int x = 0; x < half_height; x++ )
 	{
-		for( unsigned int y = 0; y < wavelets.at( x ).size(); y++ )
+		for( int y = 0; y < width; y++ )
 		{
 			double current_pixel = wavelets.at( x * 2 ).at( y );
 			double next_pixel = wavelets.at( x * 2 + 1).at( y );
@@ -36,9 +35,9 @@ void DWT(Wavelet &wavelets)
 	}
 
 	// perform wavelet transform on columns
-	for( unsigned int x = 0; x < wavelets.size(); x++ )
+	for( int x = 0; x < height; x++ )
 	{
-		for( int y = 0; y < half_width; y += 2 )
+		for( int y = 0; y < half_width; y++ )
 		{
 			double current_pixel = temp.at( x ).at( y * 2 );
 			double next_pixel = temp.at( x ).at( y * 2 + 1 );
@@ -48,26 +47,18 @@ void DWT(Wavelet &wavelets)
 		}
 	}
 
-	// copy the wavelets to a mat object
-	Mat wavelet_image( wavelets.size(), wavelets.at( 0 ).size(), CV_8U );
-	for( int x = 0; x < wavelet_image.rows; x++ )
+	// copy temp1 back into the wavelet vector
+	for( int x = 0; x < height; x++ )
 	{
-		for( int y = 0; y < wavelet_image.cols; y++)
+		for( int y = 0; y < width; y++ )
 		{
-			double t = temp1.at( x ).at( y );
-
-			if( t < 0 )
-			{
-				t = 0;
-			}else if( t > 255 )
-			{
-				t = 255;
-			}
-
-			wavelet_image.data[wavelet_image.step * x + y] = static_cast<uchar>( t );
+			wavelets.at( x ).at( y ) = temp1.at( x ).at( y );
 		}
 	}
 
-	namedWindow( "Display Image", WINDOW_AUTOSIZE );
-	imshow( "Display Image", wavelet_image );
+	// recursively perform the Haar wavelet transform to a depth of three
+	if( depth < 3 )
+	{
+		DWT(wavelets, half_height, half_width, depth + 1 );
+	}
 }

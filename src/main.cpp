@@ -7,6 +7,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <new>
 #include "../headers/DWT.h"
 #include "../headers/helpers.h"
 
@@ -14,33 +15,53 @@ using namespace cv;
 
 int main( int argc, char** argv )
 {
-  Mat image;
-  image = imread( argv[1], CV_LOAD_IMAGE_GRAYSCALE );
+	Mat image;
+	image = imread( argv[1], CV_LOAD_IMAGE_GRAYSCALE );
 
-  if( argc != 2 || !image.data )
-    {
-      std::cout << "No image data \n" ;
-      return -1;
-    }
+	if( argc != 2 || !image.data )
+	{
+		std::cout << "No image data \n" ;
+		return -1;
+	}
 
-  Wavelet wavelet( image.rows, std::vector<double>( image.cols ) );
+	// copy the image into a wavelet object
+	Wavelet wavelet( image.rows, std::vector<double>( image.cols ) );
+	for( int x = 0; x < image.rows; x++ )
+	{
+		for( int y = 0; y < image.cols; y++ )
+		{
+			// subtract 128 in order to center the values around 0;
+			wavelet.at( x ).at( y ) = static_cast<double>( image.data[image.step * x + y] ) - 128;
+		}
+	}
 
-  for( int x = 0; x < image.rows; x++ )
-  {
-	  for( int y = 0; y < image.cols; y++ )
-	  {
-		  wavelet.at( x ).at( y ) = static_cast<double>( image.data[image.step * x + y] );
-	  }
-  }
-  type2str( image.type() );
+	DWT(wavelet, image.rows, image.cols);
 
-//  std::cout << image;
-  DWT(wavelet);
+	// copy the wavelets to a mat object
+	Mat wavelet_image( image.rows, image.cols, CV_8U );
+	for( int x = 0; x < wavelet_image.rows; x++ )
+	{
+		for( int y = 0; y < wavelet_image.cols; y++)
+		{
+			// increase the value of the wavelet by 128 so we can see what is going on with it easier.
+			double t = wavelet.at( x ).at( y ) + 128;
 
-//  namedWindow( "Display Image", WINDOW_AUTOSIZE );
-//  imshow( "Display Image", image );
+			if( t < 0 )
+			{
+				t = 0;
+			}else if( t > 255 )
+			{
+				t = 255;
+			}
 
-  waitKey(0);
+			wavelet_image.data[wavelet_image.step * x + y] = static_cast<uchar>( t );
+		}
+	}
 
-  return 0;
+	namedWindow( "Display Image", WINDOW_AUTOSIZE );
+	imshow( "Display Image", wavelet_image );
+
+	waitKey(0);
+
+	return 0;
 }
