@@ -57,7 +57,7 @@ void DWT(Wavelet &wavelets, int height, int width, int depth)
 	}
 
 	// recursively perform the Haar wavelet transform to a depth of three
-	if( depth < 3 )
+	if( depth < MAX_TRANSFORM_DEPTH )
 	{
 		DWT(wavelets, half_height, half_width, depth + 1 );
 	}
