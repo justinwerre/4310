@@ -6,11 +6,12 @@
  */
 
 #include <opencv2/opencv.hpp>
+#include <stdexcept>
 #include <iostream>
-#include <new>
 #include "../headers/DWT.h"
 #include "../headers/helpers.h"
 #include "../headers/quantizer.h"
+#include "../headers/encoder.h"
 
 using namespace cv;
 
@@ -71,7 +72,7 @@ int main( int argc, char** argv )
 		{
 			// increase the value of the wavelet by 128 so we can see what is going on with it easier.
 			double t = wavelet.at( x ).at( y ) + 128;
-			std::cout << t << std::endl;
+
 			if( t < 0 )
 			{
 				t = 0;
@@ -86,6 +87,12 @@ int main( int argc, char** argv )
 
 	namedWindow( "Quantized", WINDOW_AUTOSIZE );
 	imshow( "Quantized", wavelet_image );
+
+	try{
+		encode( wavelet, "file.jp2" );
+	}catch( std::out_of_range &e ){
+		std::cerr << "why?\n" << e.what();
+	}
 
 	waitKey(0);
 
