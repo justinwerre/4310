@@ -89,7 +89,7 @@ int main( int argc, char** argv )
 	imshow( "Quantized", wavelet_image );
 
 	try{
-		encode( wavelet, "file.jp2" );
+		encode( wavelet, "file3.jp2" );
 	}catch( std::out_of_range &e ){
 		std::cerr << "why?\n" << e.what();
 	}
