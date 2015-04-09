@@ -60,10 +60,12 @@ int main( int argc, char** argv )
 		}
 	}
 
+	imwrite( "wavelete.png", wavelet_image );
+
 	namedWindow( "DWT", WINDOW_AUTOSIZE );
 	imshow( "DWT", wavelet_image );
 
-	quantizer( wavelet, 3 );
+	quantizer( wavelet);
 
 	// copy the wavelets to a mat object
 	for( int x = 0; x < wavelet_image.rows; x++ )
@@ -84,6 +86,8 @@ int main( int argc, char** argv )
 			wavelet_image.data[ wavelet_image.step * x + y ] = static_cast<uchar>( t );
 		}
 	}
+
+	imwrite( "quntized.png", wavelet_image );
 
 	namedWindow( "Quantized", WINDOW_AUTOSIZE );
 	imshow( "Quantized", wavelet_image );

@@ -21,6 +21,8 @@ void DWT(Wavelet &wavelets, int height, int width, int depth)
 	int half_height = height / 2;
 	int half_width = width /2;
 
+	std::cout << "depth: " << depth << " height: " << height << " width: " << width << std::endl;
+
 	// perform wavelet transform on rows
 	for( int x = 0; x < half_height; x++ )
 	{
@@ -57,7 +59,7 @@ void DWT(Wavelet &wavelets, int height, int width, int depth)
 	}
 
 	// recursively perform the Haar wavelet transform to a depth of three
-	if( depth < MAX_TRANSFORM_DEPTH )
+	if( depth + 1 < MAX_TRANSFORM_DEPTH )
 	{
 		DWT(wavelets, half_height, half_width, depth + 1 );
 	}
