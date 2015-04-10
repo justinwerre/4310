@@ -19,6 +19,8 @@ void quantizer( Wavelet &wavelets )
 	unsigned int subband_height = wavelets.size();
 	unsigned int subband_width = wavelets.at( 0 ).size();
 
+	std::cout << step_size << std::endl;
+
 	// calculate the dimensions of the n-th level sub-bands
 	for( unsigned int i = 0; i < MAX_TRANSFORM_DEPTH; i++ )
 	{
@@ -61,7 +63,7 @@ void quantizer( Wavelet &wavelets )
 				{
 					// Since were not in the dead zone, quantize the value
 					wavelets.at( x ).at( y ) = qunatize( wavelets.at( x ).at( y ), step_size );
-					std::cout << "x: " << x << " y: " << y << " value: " << wavelets.at( x ).at( y ) << std::endl;
+//					std::cout << "x: " << x << " y: " << y << " value: " << wavelets.at( x ).at( y ) << std::endl;
 				}
 			}
 		}
@@ -93,5 +95,8 @@ double calculateStepSize( int nb, double &exponent )
 	exponent = exponent + nb - nl;
 
 	// calculate the new step size using 8.2-64 from Digital Image Processing
-	return pow( 2, NORMAL_DYNAMIC_RANGE - exponent) * ( 1 + MANTISSA / pow( 2, 11 ) );
+	double first = pow( 2, NORMAL_DYNAMIC_RANGE - exponent);
+	double second = ( 1 + MANTISSA / pow( 2, 11 ) );
+	std::cout << "first: " << first << " second: " << second << " exponent: " << exponent << std::endl;
+	return first * second;
 }

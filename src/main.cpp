@@ -60,10 +60,10 @@ int main( int argc, char** argv )
 		}
 	}
 
-	imwrite( "wavelete.png", wavelet_image );
+	//imwrite( "wavelete.png", wavelet_image );
 
-	namedWindow( "DWT", WINDOW_AUTOSIZE );
-	imshow( "DWT", wavelet_image );
+	//namedWindow( "DWT", WINDOW_AUTOSIZE );
+	//imshow( "DWT", wavelet_image );
 
 	quantizer( wavelet);
 
@@ -87,10 +87,10 @@ int main( int argc, char** argv )
 		}
 	}
 
-	imwrite( "quntized.png", wavelet_image );
+	//imwrite( "quntized.png", wavelet_image );
 
-	namedWindow( "Quantized", WINDOW_AUTOSIZE );
-	imshow( "Quantized", wavelet_image );
+	//namedWindow( "Quantized", WINDOW_AUTOSIZE );
+	//imshow( "Quantized", wavelet_image );
 
 	try{
 		encode( wavelet, "file3.jp2" );

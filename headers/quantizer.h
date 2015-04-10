@@ -11,8 +11,8 @@
 #define HEADERS_QUANTIZER_H_
 
 // Used for calculating the step size
-#define MANTISSA 8
-#define EXPONENT 8.5
+#define MANTISSA 7
+#define EXPONENT 12.5
 #define NORMAL_DYNAMIC_RANGE 8
 
 /* quantizes the wavelets.
