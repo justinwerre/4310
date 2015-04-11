@@ -16,7 +16,6 @@ using namespace cv;
 void DWT(Wavelet &wavelets, int height, int width, int depth)
 {
 	Wavelet temp( height, std::vector<double>( width, 0 ) );
-	Wavelet temp1( height, std::vector<double>( width, 0 ) );
 	double weight_factor = sqrt(2)/2;
 	int half_height = height / 2;
 	int half_width = width /2;
@@ -31,8 +30,11 @@ void DWT(Wavelet &wavelets, int height, int width, int depth)
 			double current_pixel = wavelets.at( x * 2 ).at( y );
 			double next_pixel = wavelets.at( x * 2 + 1).at( y );
 
+			// a = (sqrt(2)c + sqrt(2)d)/2
 			temp.at( x ).at( y ) = weight_factor * current_pixel + weight_factor * next_pixel;
-			temp.at( x + half_height ).at( y ) = -weight_factor * next_pixel + weight_factor * current_pixel;
+
+			// b = (-sqrt(2)c + sqrt(2)d)/2
+			temp.at( x + half_height ).at( y ) = -weight_factor * current_pixel + weight_factor * next_pixel;
 		}
 	}
 
@@ -44,23 +46,56 @@ void DWT(Wavelet &wavelets, int height, int width, int depth)
 			double current_pixel = temp.at( x ).at( y * 2 );
 			double next_pixel = temp.at( x ).at( y * 2 + 1 );
 
-			temp1.at( x ).at( y ) = weight_factor * current_pixel + weight_factor * next_pixel;
-			temp1.at( x ).at( y + half_width ) = -weight_factor * next_pixel + weight_factor * current_pixel;
+			// a = (sqrt(2)c + sqrt(2)d)/2
+			wavelets.at( x ).at( y ) = weight_factor * current_pixel + weight_factor * next_pixel;
+
+			// b = (-sqrt(2)c + sqrt(2)d)/2
+			wavelets.at( x ).at( y + half_width ) = -weight_factor * current_pixel + weight_factor * next_pixel;
 		}
 	}
 
-	// copy temp1 back into the wavelet vector
-	for( int x = 0; x < height; x++ )
-	{
-		for( int y = 0; y < width; y++ )
-		{
-			wavelets.at( x ).at( y ) = temp1.at( x ).at( y );
-		}
-	}
-
-	// recursively perform the Haar wavelet transform to a depth of three
+	// recursively perform the Haar wavelet transform to the max transform depth
 	if( depth + 1 < MAX_TRANSFORM_DEPTH )
 	{
 		DWT(wavelets, half_height, half_width, depth + 1 );
+	}
+}
+
+void inverseDWT( Wavelet &wavelets, int height, int width, int depth )
+{
+	Wavelet temp( height, std::vector<double>( width, 0 ) );
+	int half_height = height / 2;
+	int half_width = width /2;
+
+	// Recursively perform the inverse transform
+	if( depth + 1 < MAX_TRANSFORM_DEPTH )
+	{
+		inverseDWT( wavelets, half_height, half_width, depth + 1 );
+	}
+
+	// perform inverse wavelet transform on rows
+	for( int x = 0; x < half_height; x++ )
+	{
+		for( int y = 0; y < width; y++ )
+		{
+			double a = wavelets.at( x ).at( y );
+			double b = wavelets.at( x + half_height ).at( y );
+
+			temp.at( 2 * x ).at( y ) = ( a - b ) / sqrt( 2 );
+			temp.at( 2 * x + 1 ).at( y ) = ( a + b ) / sqrt( 2 );
+		}
+	}
+
+	// perform inverse wavelet transform on columns
+	for( int x = 0; x < height; x++ )
+	{
+		for( int y = 0; y < half_width; y++ )
+		{
+			double a = temp.at( x ).at( y );
+			double b = temp.at( x ).at( y + half_width );
+
+			wavelets.at( x ).at( 2 * y ) = ( a - b ) / sqrt( 2 );
+			wavelets.at( x ).at( 2 * y + 1 ) = ( a + b ) / sqrt( 2 );
+		}
 	}
 }

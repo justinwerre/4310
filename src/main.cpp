@@ -37,7 +37,7 @@ int main( int argc, char** argv )
 		}
 	}
 
-	DWT(wavelet, image.rows, image.cols);
+	DWT( wavelet, image.rows, image.cols );
 
 	// copy the wavelets to a mat object
 	Mat wavelet_image( image.rows, image.cols, CV_8U );
@@ -60,12 +60,12 @@ int main( int argc, char** argv )
 		}
 	}
 
-	//imwrite( "wavelete.png", wavelet_image );
+	namedWindow( "DWT", WINDOW_AUTOSIZE );
+	imshow( "DWT", wavelet_image );
 
-	//namedWindow( "DWT", WINDOW_AUTOSIZE );
-	//imshow( "DWT", wavelet_image );
+	//quantizer( wavelet);
 
-	quantizer( wavelet);
+	inverseDWT( wavelet, image.rows, image.cols );
 
 	// copy the wavelets to a mat object
 	for( int x = 0; x < wavelet_image.rows; x++ )
@@ -87,16 +87,14 @@ int main( int argc, char** argv )
 		}
 	}
 
-	//imwrite( "quntized.png", wavelet_image );
+	namedWindow( "Inverse", WINDOW_AUTOSIZE );
+	imshow( "Inverse", wavelet_image );
 
-	//namedWindow( "Quantized", WINDOW_AUTOSIZE );
-	//imshow( "Quantized", wavelet_image );
-
-	try{
-		encode( wavelet, "file3.jp2" );
-	}catch( std::out_of_range &e ){
-		std::cerr << "why?\n" << e.what();
-	}
+//	try{
+//		encode( wavelet, "lena.jp2" );
+//	}catch( std::out_of_range &e ){
+//		std::cerr << "why?\n" << e.what();
+//	}
 
 	waitKey(0);
 
