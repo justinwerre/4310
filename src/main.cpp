@@ -61,9 +61,10 @@ int main( int argc, char** argv )
 	}
 
 	namedWindow( "DWT", WINDOW_AUTOSIZE );
-	imshow( "DWT", wavelet_image );
+	imshow( "DWT", image );
 
-	//quantizer( wavelet);
+	quantizer( wavelet);
+	inverseQuantizer( wavelet );
 
 	inverseDWT( wavelet, image.rows, image.cols );
 

@@ -11,14 +11,19 @@
 #define HEADERS_QUANTIZER_H_
 
 // Used for calculating the step size
-#define MANTISSA 7
-#define EXPONENT 12.5
+#define MANTISSA 8
+#define EXPONENT 8.75
 #define NORMAL_DYNAMIC_RANGE 8
 
 /* quantizes the wavelets.
  * wavelets: The wavelets to be quantized.
  */
-void quantizer( Wavelet & wavelets );
+void quantizer( Wavelet &wavelets );
+
+/* Attempts to reverse the quantizer process
+ * wavelets: The wavelets to be inverse quantized
+ */
+void inverseQuantizer( Wavelet &wavelets );
 
 /* Computes the sign of the number.
  * Returns 1 if positive, -1 if negative. 0 is considered positive.
