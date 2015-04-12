@@ -20,12 +20,10 @@
  */
 void encode( Wavelet & image, std::string file_name );
 
-/* Computes the sum of of frequencies of all values less then the value.
+/* Reads in an encoded image into the wavelet.
+ * image: An empty wavelet array to return the image in.
+ * file_name: The name of the encoded image.
  */
-int sum( std::vector<int> frequency, int value );
-
-/* Trims shared digits between lower and upper and writes them to the ostream
- */
-void foo( double &lower, double &upper, std::ostream &fout );
+void decode( Wavelet &image, std::string file_name );
 
 #endif /* HEADERS_ENCODER_H_ */

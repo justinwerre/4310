@@ -7,7 +7,7 @@
 
 #ifndef HEADERS_DWT_H_
 #define HEADERS_DWT_H_
-#define MAX_TRANSFORM_DEPTH 1
+#define MAX_TRANSFORM_DEPTH 2
 
 typedef std::vector<std::vector<double> > Wavelet;
 

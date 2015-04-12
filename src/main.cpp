@@ -28,6 +28,7 @@ int main( int argc, char** argv )
 
 	// copy the image into a wavelet object
 	Wavelet wavelet( image.rows, std::vector<double>( image.cols ) );
+	Wavelet dWavelet;
 	for( int x = 0; x < image.rows; x++ )
 	{
 		for( int y = 0; y < image.cols; y++ )
@@ -64,9 +65,26 @@ int main( int argc, char** argv )
 	imshow( "DWT", image );
 
 	quantizer( wavelet);
-	inverseQuantizer( wavelet );
 
-	inverseDWT( wavelet, image.rows, image.cols );
+	try{
+		encode( wavelet, "lena.jp2" );
+		decode( dWavelet, "lena.jp2" );
+	}catch( std::out_of_range &e ){
+		std::cerr << "why?\n" << e.what();
+	}
+
+	try{
+		inverseQuantizer( dWavelet );
+	}catch( std::out_of_range &e )
+	{
+		std::cout << "iquantizer\n";
+	}
+
+	try{
+		inverseDWT( dWavelet, image.rows, image.cols );
+	}catch( std::out_of_range &e ){
+		std::cout << "idwt\n";
+	}
 
 	// copy the wavelets to a mat object
 	for( int x = 0; x < wavelet_image.rows; x++ )
@@ -74,7 +92,7 @@ int main( int argc, char** argv )
 		for( int y = 0; y < wavelet_image.cols; y++)
 		{
 			// increase the value of the wavelet by 128 so we can see what is going on with it easier.
-			double t = wavelet.at( x ).at( y ) + 128;
+			double t = dWavelet.at( x ).at( y ) + 128;
 
 			if( t < 0 )
 			{
@@ -90,12 +108,6 @@ int main( int argc, char** argv )
 
 	namedWindow( "Inverse", WINDOW_AUTOSIZE );
 	imshow( "Inverse", wavelet_image );
-
-//	try{
-//		encode( wavelet, "lena.jp2" );
-//	}catch( std::out_of_range &e ){
-//		std::cerr << "why?\n" << e.what();
-//	}
 
 	waitKey(0);
 

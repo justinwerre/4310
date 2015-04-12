@@ -83,7 +83,7 @@ void inverseQuantizer( Wavelet &wavelets )
 		subband_width /= 2;
 	}
 
-	// Quantized the LL sub-band. We do this one separately since it doesn't have a "dead zone"
+	// Inverse quantized the LL sub-band. We do this one separately since it doesn't have a "dead zone"
 	// that isn't quantized with the current step size.
 	for( unsigned int x = 0; x < subband_height; x++ )
 	{
@@ -116,7 +116,7 @@ void inverseQuantizer( Wavelet &wavelets )
 				// "dead zone" goes from (0, 0) to (subband_width / 2, subband_height / 2)
 				if( x >= deadZone_height || y >= deadZone_width )
 				{
-					// Since were not in the dead zone, quantize the value
+					// Since were not in the dead zone, inverse quantize the value
 					wavelets.at( x ).at( y ) = wavelets.at( x ).at( y ) * step_size ;
 				}
 			}

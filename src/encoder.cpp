@@ -11,9 +11,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <sstream>
 #include <vector>
 #include "../headers/compressor.h"
 #include "../headers/encoder.h"
+#include "../headers/decompressor.h"
 #include "../headers/modelA.h"
 
 void encode(Wavelet &image, std::string file_name)
@@ -35,7 +37,7 @@ void encode(Wavelet &image, std::string file_name)
 	fout.close();
 
 	// compress the file
-    std::ifstream input( temp_file_name.c_str() , std::ifstream::binary );
+    std::ifstream input( temp_file_name.c_str(), std::ifstream::binary );
     std::ofstream output( file_name.c_str(), std::ofstream::binary );
     modelA<int, 16, 14> cmodel;
     cmodel.dump("cmodel", std::clog);
@@ -46,35 +48,38 @@ void encode(Wavelet &image, std::string file_name)
 	std::remove( temp_file_name.c_str() );
 }
 
-int sum( std::vector<int> frequency, int value )
+void decode( Wavelet &image, std::string file_name )
 {
-	int sum = 0;
+	std::string temp_file_name = "temp.txt";
+	std::ifstream input( file_name.c_str(), std::ifstream::binary );
+	std::ofstream output( temp_file_name.c_str(), std::ofstream::binary );
+	modelA<int, 16, 14> cmodel;
+	cmodel.dump( "cmodel", std::clog );
+	decompress( input, output, cmodel );
+	input.close();
+	output.close();
 
-	for( int i = 0; i < value; i++ )
+	// read file into a Wavelet
+	int i = 0;
+	std::ifstream fin;
+	std::string line;
+	fin.open( temp_file_name.c_str() );
+	image.resize( 0 ); // make sure the image is empty
+	while( std::getline( fin, line ) )
 	{
-		sum += frequency.at( i );
+		double temp;
+		std::stringstream ss(line);
+		image.push_back( std::vector<double>() );
+
+		while( ss >> temp )
+		{
+			image.at( i ).push_back( temp );
+		}
+
+		i++;
 	}
 
-	return sum;
-}
-
-void foo( double &lower, double &upper, std::ostream &fout )
-{
-	// remove any shared digits between the upper and lower bound
-	int lower_digit = static_cast<int>( lower * 10 );
-	int upper_digit = static_cast<int>( upper * 10 );
-
-	while( upper_digit == lower_digit )
-	{
-		// write out the shared digit
-		fout << lower_digit;
-
-		// remove the shared digit from the upper and lower bound
-		lower = lower * 10 - lower_digit;
-		upper = upper * 10 - upper_digit;
-
-		// recompute the leading digit
-		lower_digit = static_cast<int>( lower * 10 );
-		upper_digit = static_cast<int>( upper * 10 );
-	}
+	// clean up
+	fin.close();
+	std::remove( temp_file_name.c_str() );
 }
