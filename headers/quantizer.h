@@ -11,8 +11,8 @@
 #define HEADERS_QUANTIZER_H_
 
 // Used for calculating the step size
-#define MANTISSA 8
-#define EXPONENT 8.5
+#define MANTISSA 11
+#define EXPONENT 8
 #define NORMAL_DYNAMIC_RANGE 8
 
 /* quantizes the wavelets.
@@ -32,17 +32,17 @@ int sign( double num );
 
 /* quantizes the value based on the step size
  * value: The value to be quantized
- * step_size: The step size to use during quantization
- */
-double qunatize( double value, double step_size );
-
-/* Calculates the step size based on the exponent, mantissa and
- * current sub-band decomposition level.
  * nb: The number of sub-band decomposition levels from the original
  * 	   image tile component to the current sub-band
- * exponent: The exponent value used to calculate the last sub-bands
- * 			 step size.
+ * agb: The analysis gain bit for the current sub-band
  */
-double calculateStepSize( int nb, double &exponent );
+double quantize( double value, int nb, int agb );
+
+/* Calculates the step size for the given sub-band
+ * nb: The number of sub-band decomposition levels from the original
+ * 	   image tile component to the current sub-band
+ * agb: The analysis gain bit for the current sub-band
+ */
+double stepSize( int nb, int agb );
 
 #endif /* HEADERS_QUANTIZER_H_ */

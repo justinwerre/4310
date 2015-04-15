@@ -14,8 +14,6 @@
 
 void quantizer( Wavelet &wavelets )
 {
-	double exponent = EXPONENT;
-	double step_size = calculateStepSize( 0, exponent );
 	unsigned int subband_height = wavelets.size();
 	unsigned int subband_width = wavelets.at( 0 ).size();
 
@@ -32,7 +30,7 @@ void quantizer( Wavelet &wavelets )
 	{
 		for( unsigned int y = 0; y < subband_width; y++ )
 		{
-			wavelets.at( x ).at( y ) = qunatize( wavelets.at( x ).at( y ), step_size );
+			wavelets.at( x ).at( y ) = quantize( wavelets.at( x ).at( y ), 0, 0 );
 		}
 	}
 
@@ -41,14 +39,13 @@ void quantizer( Wavelet &wavelets )
 	{
 		// The old sub-band dimensions are the current sub-bands
 		// dead zone
-		unsigned int deadZone_height = subband_height;
-		unsigned int deadZone_width = subband_width;
+		unsigned int dead_zone_height = subband_height;
+		unsigned int dead_zone_width = subband_width;
 
 		// Calculate the dimensions of the current sub-band
 		subband_height *= 2;
 		subband_width *= 2;
-		step_size = calculateStepSize( i + 1, exponent );
-		std::cout << "height: " << subband_height << " width: " << subband_width << " step size: " << step_size << std::endl;
+		std::cout << "height: " << subband_height << " width: " << subband_width << std::endl;
 
 		for( unsigned int x = 0; x < subband_height; x++ )
 		{
@@ -57,10 +54,15 @@ void quantizer( Wavelet &wavelets )
 				// In each sub-band, we consider the lower sub-bands a
 				// "dead zone" that doesn't need to be quantized. This
 				// "dead zone" goes from (0, 0) to (subband_width / 2, subband_height / 2)
-				if( x >= deadZone_height || y >= deadZone_width )
+				if( x >= dead_zone_height && y >= dead_zone_width )
 				{
-					// Since were not in the dead zone, quantize the value
-					wavelets.at( x ).at( y ) = qunatize( wavelets.at( x ).at( y ), step_size );
+					// HH sub-band, 2 analysis gain bits
+					wavelets.at( x ).at( y ) = quantize( wavelets.at( x ).at( y ), i, 2 );
+				}
+				else if( x >= dead_zone_height || y >= dead_zone_width )
+				{
+					// LH or HL sub-band, 1 analysis gain bit
+					wavelets.at( x ).at( y ) = quantize( wavelets.at( x ).at( y ), i, 1 );
 				}
 			}
 		}
@@ -69,12 +71,8 @@ void quantizer( Wavelet &wavelets )
 
 void inverseQuantizer( Wavelet &wavelets )
 {
-	double exponent = EXPONENT;
-	double step_size = calculateStepSize( 0, exponent );
 	unsigned int subband_height = wavelets.size();
 	unsigned int subband_width = wavelets.at( 0 ).size();
-
-	std::cout << step_size << std::endl;
 
 	// calculate the dimensions of the n-th level sub-bands
 	for( unsigned int i = 0; i < MAX_TRANSFORM_DEPTH; i++ )
@@ -89,7 +87,7 @@ void inverseQuantizer( Wavelet &wavelets )
 	{
 		for( unsigned int y = 0; y < subband_width; y++ )
 		{
-			wavelets.at( x ).at( y ) = qunatize( wavelets.at( x ).at( y ), step_size );
+			wavelets.at( x ).at( y ) = wavelets.at( x ).at( y ) * stepSize( 0, 0 );
 		}
 	}
 
@@ -98,26 +96,31 @@ void inverseQuantizer( Wavelet &wavelets )
 	{
 		// The old sub-band dimensions are the current sub-bands
 		// dead zone
-		unsigned int deadZone_height = subband_height;
-		unsigned int deadZone_width = subband_width;
+		unsigned int dead_zone_height = subband_height;
+		unsigned int dead_zone_width = subband_width;
 
 		// Calculate the dimensions of the current sub-band
 		subband_height *= 2;
 		subband_width *= 2;
-		step_size = calculateStepSize( i + 1, exponent );
-		std::cout << "height: " << subband_height << " width: " << subband_width << " step size: " << step_size << std::endl;
+		std::cout << "height: " << subband_height << " width: " << subband_width <<  std::endl;
 
 		for( unsigned int x = 0; x < subband_height; x++ )
 		{
 			for( unsigned int y = 0; y < subband_width; y++ )
 			{
+
 				// In each sub-band, we consider the lower sub-bands a
 				// "dead zone" that doesn't need to be quantized. This
 				// "dead zone" goes from (0, 0) to (subband_width / 2, subband_height / 2)
-				if( x >= deadZone_height || y >= deadZone_width )
+				if( x >= dead_zone_height && y >= dead_zone_width )
 				{
-					// Since were not in the dead zone, inverse quantize the value
-					wavelets.at( x ).at( y ) = wavelets.at( x ).at( y ) * step_size ;
+					// HH sub-band, 2 analysis gain bits
+					wavelets.at( x ).at( y ) = wavelets.at( x ).at( y ) * stepSize( i, 2 );
+				}
+				else if( x >= dead_zone_height || y >= dead_zone_width )
+				{
+					// LH or HL sub-band, 1 analysis gain bit
+					wavelets.at( x ).at( y ) = wavelets.at( x ).at( y ) * stepSize( i, 1 );
 				}
 			}
 		}
@@ -136,21 +139,14 @@ int sign( double num )
 	return value;
 }
 
-double qunatize( double value, double step_size )
+double quantize( double value, int nb, int agb )
 {
-	return sign( value ) * floor( std::abs( value) / step_size );
+	return sign( value ) * floor( std::abs( value ) / stepSize( nb, agb ) );
 }
 
-double calculateStepSize( int nb, double &exponent )
+double stepSize( int nb, int agb )
 {
-	int nl = MAX_TRANSFORM_DEPTH;
-
-	// calculate the new exponent
-	exponent = exponent + nb - nl;
-
 	// calculate the new step size using 8.2-64 from Digital Image Processing
-	double first = pow( 2, NORMAL_DYNAMIC_RANGE - exponent);
-	double second = ( 1 + MANTISSA / pow( 2, 11 ) );
-	std::cout << "first: " << first << " second: " << second << " exponent: " << exponent << std::endl;
-	return first * second;
+	double exponent = EXPONENT + nb - MAX_TRANSFORM_DEPTH;
+	return pow( 2, NORMAL_DYNAMIC_RANGE - exponent ) * ( 1 + MANTISSA / pow( 2, 11 ) );
 }
