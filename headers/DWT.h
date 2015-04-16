@@ -28,4 +28,12 @@ void DWT( Wavelet &wavelets, int height, int width, int depth = 0 );
  */
 void inverseDWT( Wavelet &wavelets, int height, int width, int depth = 0 );
 
+/*
+ * Recursively performs a lifting scheme wavelet transform using 5-3 filters
+ * height: The height of the area to perform the transform on.
+ * width: The width of the area to perform the transform on.
+ * depth: The current depth transform.
+ */
+void liftingDWT( Wavelet &wavelets, int height, int width, int depth = 0 );
+
 #endif /* HEADERS_DWT_H_ */
