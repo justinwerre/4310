@@ -4,6 +4,7 @@
  *  Created on: Mar 28, 2015
  *      Author: Justin Werre
  */
+#include <vector>
 
 #ifndef HEADERS_DWT_H_
 #define HEADERS_DWT_H_

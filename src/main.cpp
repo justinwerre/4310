@@ -38,7 +38,6 @@ int main( int argc, char** argv )
 		}
 	}
 
-//	DWT( wavelet, image.rows, image.cols );
 	try
 	{
 		liftingDWT( wavelet, image.rows, image.cols );
@@ -70,9 +69,11 @@ int main( int argc, char** argv )
 	}
 
 	namedWindow( "DWT", WINDOW_AUTOSIZE );
-	imshow( "DWT", wavelet_image );
+	imshow( "DWT", image );
 
-	//quantizer( wavelet);
+	quantizer( wavelet);
+
+	histogram( wavelet, "qhist.csv" );
 
 	try{
 		encode( wavelet, "lena.jp2" );
@@ -82,14 +83,14 @@ int main( int argc, char** argv )
 	}
 
 	try{
-		//inverseQuantizer( dWavelet );
+		inverseQuantizer( dWavelet );
 	}catch( std::out_of_range &e )
 	{
 		std::cout << "iquantizer\n";
 	}
 
 	try{
-		//inverseDWT( dWavelet, image.rows, image.cols );
+		inverseDWT( dWavelet, image.rows, image.cols );
 	}catch( std::out_of_range &e ){
 		std::cout << "idwt\n";
 	}
@@ -114,8 +115,10 @@ int main( int argc, char** argv )
 		}
 	}
 
-	//namedWindow( "Inverse", WINDOW_AUTOSIZE );
-	//imshow( "Inverse", wavelet_image );
+	namedWindow( "Inverse", WINDOW_AUTOSIZE );
+	imshow( "Inverse", wavelet_image );
+
+	imwrite( "lena.png", wavelet_image );
 
 	waitKey(0);
 

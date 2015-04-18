@@ -45,7 +45,6 @@ void quantizer( Wavelet &wavelets )
 		// Calculate the dimensions of the current sub-band
 		subband_height *= 2;
 		subband_width *= 2;
-		std::cout << "height: " << subband_height << " width: " << subband_width << std::endl;
 
 		for( unsigned int x = 0; x < subband_height; x++ )
 		{
@@ -87,7 +86,7 @@ void inverseQuantizer( Wavelet &wavelets )
 	{
 		for( unsigned int y = 0; y < subband_width; y++ )
 		{
-			wavelets.at( x ).at( y ) = wavelets.at( x ).at( y ) * stepSize( 0, 0 );
+			wavelets.at( x ).at( y ) = ( wavelets.at( x ).at( y ) + RECONSTRUCTION_PARAMETER * sign( wavelets.at( x ).at( y ) ) ) * stepSize( 0, 0 );
 		}
 	}
 
@@ -102,7 +101,6 @@ void inverseQuantizer( Wavelet &wavelets )
 		// Calculate the dimensions of the current sub-band
 		subband_height *= 2;
 		subband_width *= 2;
-		std::cout << "height: " << subband_height << " width: " << subband_width <<  std::endl;
 
 		for( unsigned int x = 0; x < subband_height; x++ )
 		{
@@ -115,12 +113,12 @@ void inverseQuantizer( Wavelet &wavelets )
 				if( x >= dead_zone_height && y >= dead_zone_width )
 				{
 					// HH sub-band, 2 analysis gain bits
-					wavelets.at( x ).at( y ) = wavelets.at( x ).at( y ) * stepSize( i, 2 );
+					wavelets.at( x ).at( y ) = ( wavelets.at( x ).at( y ) + RECONSTRUCTION_PARAMETER * sign( wavelets.at( x ).at( y ) ) ) * stepSize( i, 2 );
 				}
 				else if( x >= dead_zone_height || y >= dead_zone_width )
 				{
 					// LH or HL sub-band, 1 analysis gain bit
-					wavelets.at( x ).at( y ) = wavelets.at( x ).at( y ) * stepSize( i, 1 );
+					wavelets.at( x ).at( y ) = ( wavelets.at( x ).at( y ) + RECONSTRUCTION_PARAMETER * sign( wavelets.at( x ).at( y ) ) ) * stepSize( i, 1 );
 				}
 			}
 		}

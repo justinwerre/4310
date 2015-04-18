@@ -20,8 +20,6 @@ void DWT(Wavelet &wavelets, int height, int width, int depth)
 	int half_height = height / 2;
 	int half_width = width /2;
 
-	std::cout << "depth: " << depth << " height: " << height << " width: " << width << std::endl;
-
 	// perform wavelet transform on rows
 	for( int x = 0; x < half_height; x++ )
 	{
@@ -102,6 +100,9 @@ void inverseDWT( Wavelet &wavelets, int height, int width, int depth )
 
 void liftingDWT( Wavelet &wavelets, int height, int width, int depth )
 {
+	int half_height = height / 2;
+	int half_width = width / 2;
+
 	// work on the rows first
 	for( int x = 0; x < height; x++ )
 	{
@@ -110,7 +111,10 @@ void liftingDWT( Wavelet &wavelets, int height, int width, int depth )
 		{
 			double d = wavelets.at( x ).at ( y );
 			double s0 = wavelets.at( x ).at( y - 1 );
-			double s1 = 0;
+			double s1 = -128;
+
+			if( y == width - 1 )
+				std::cout << d << std::endl;
 
 			// make sure s1 is in the array bounds
 			if( y + 1 < wavelets.at( x ).size() )
@@ -147,7 +151,6 @@ void liftingDWT( Wavelet &wavelets, int height, int width, int depth )
 
 		// separate highpass and lowpass output, technically this should be done
 		// first, since this is the lazy wavelet transform of the algorithm
-		int half_width = width / 2;
 		std::vector<double> row( wavelets.at( x ) );
 
 		// move evens
@@ -171,7 +174,7 @@ void liftingDWT( Wavelet &wavelets, int height, int width, int depth )
 		{
 			double d = wavelets.at( x ).at ( y );
 			double s0 = wavelets.at( x - 1 ).at( y );
-			double s1 = 0;
+			double s1 = -128;
 
 			// make sure s1 is in the array bounds
 			if( x + 1 < wavelets.size() )
@@ -180,7 +183,7 @@ void liftingDWT( Wavelet &wavelets, int height, int width, int depth )
 			}
 
 			// di = di - 1/2( s0 + s1 )
-			wavelets.at( x ).at( y ) = d - 0.5 * ( s0 + s1 );
+			wavelets.at( x ).at( y ) =  d - 0.5 * ( s0 + s1 );
 		}
 
 		// do the update step
@@ -208,7 +211,6 @@ void liftingDWT( Wavelet &wavelets, int height, int width, int depth )
 
 		// separate highpass and lowpass output, technically this should be done
 		// first, since this is the lazy wavelet transform of the algorithm
-		int half_height = height / 2;
 		std::vector<double> col;
 
 		for( int i = 0; i < height; i++ )
@@ -227,5 +229,11 @@ void liftingDWT( Wavelet &wavelets, int height, int width, int depth )
 		{
 			wavelets.at( x + half_height ).at( y ) = col.at( 2 * x + 1 );
 		}
+	}
+
+	// perform this operation recursively
+	if( depth + 1 < MAX_TRANSFORM_DEPTH )
+	{
+		liftingDWT( wavelets, half_height, half_height, depth + 1 );
 	}
 }

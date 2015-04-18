@@ -21,7 +21,7 @@
 void encode(Wavelet &image, std::string file_name)
 {
 	std::ofstream fout;
-	std::string temp_file_name = "temp.txt";
+	std::string temp_file_name = "temp_e.txt";
 	fout.open( temp_file_name.c_str() );
 
 	// write the wavelets out to a temporary file
@@ -45,7 +45,7 @@ void encode(Wavelet &image, std::string file_name)
 
     input.close();
     output.close();
-	std::remove( temp_file_name.c_str() );
+	//std::remove( temp_file_name.c_str() );
 }
 
 void decode( Wavelet &image, std::string file_name )

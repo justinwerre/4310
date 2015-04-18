@@ -11,9 +11,10 @@
 #define HEADERS_QUANTIZER_H_
 
 // Used for calculating the step size
-#define MANTISSA 11
-#define EXPONENT 8
+#define MANTISSA 12
+#define EXPONENT 5
 #define NORMAL_DYNAMIC_RANGE 8
+#define RECONSTRUCTION_PARAMETER 0.75
 
 /* quantizes the wavelets.
  * wavelets: The wavelets to be quantized.
